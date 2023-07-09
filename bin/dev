@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require "fileutils"
+
+# path to your application root.
+APP_ROOT = File.expand_path("..", __dir__)
+FRONT_APP = File.expand_path("../front-app", __dir__)
+
+def system!(*args)
+  system(*args) || abort("\n== Command #{args} failed ==")
+end
+
+system "kill -9 $(lsof -t -i:3000)"
+system "kill -9 $(lsof -t -i:3001)"
+
+FileUtils.chdir APP_ROOT do
+
+    puts "\n== Starting backend server =="
+    system! "bin/rails s -p 3001 &"
+
+    puts "\n== Starting frontend server"
+    system! "cd front-app"
+    system! "npm run start &"
+end
+
+FileUtils.chdir FRONT_APP do
+    puts "\n== Starting frontend server"
+    system! "npm run start &"
+end
+
+
